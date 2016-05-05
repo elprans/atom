@@ -107,17 +107,9 @@ elif [ $OS == 'Linux' ]; then
   SCRIPT=$(readlink -f "$0")
   USR_DIRECTORY=$(readlink -f $(dirname $SCRIPT)/..)
 
-  case $CHANNEL in
-    beta)
-      ATOM_PATH="$USR_DIRECTORY/share/atom-beta/atom"
-      ;;
-    dev)
-      ATOM_PATH="$USR_DIRECTORY/share/atom-dev/atom"
-      ;;
-    *)
-      ATOM_PATH="$USR_DIRECTORY/share/atom/atom"
-      ;;
-  esac
+  export NPM_CONFIG_NODEDIR="{{NPM_CONFIG_NODEDIR}}"
+  export ATOM_RESOURCE_PATH="{{ATOM_RESOURCE_PATH}}"
+  ATOM_PATH="{{ATOM_PATH}}"
 
   ATOM_HOME="${ATOM_HOME:-$HOME/.atom}"
   mkdir -p "$ATOM_HOME"
@@ -127,11 +119,11 @@ elif [ $OS == 'Linux' ]; then
   [ -x "$ATOM_PATH" ] || ATOM_PATH="$TMPDIR/atom-build/Atom/atom"
 
   if [ $EXPECT_OUTPUT ]; then
-    "$ATOM_PATH" --executed-from="$(pwd)" --pid=$$ "$@"
+    "$ATOM_PATH" --app="$ATOM_RESOURCE_PATH" --executed-from="$(pwd)" --pid=$$ "$@"
     exit $?
   else
     (
-    nohup "$ATOM_PATH" --executed-from="$(pwd)" --pid=$$ "$@" > "$ATOM_HOME/nohup.out" 2>&1
+    nohup "$ATOM_PATH" --app="$ATOM_RESOURCE_PATH" --executed-from="$(pwd)" --pid=$$ "$@" > "$ATOM_HOME/nohup.out" 2>&1
     if [ $? -ne 0 ]; then
       cat "$ATOM_HOME/nohup.out"
       exit $?
